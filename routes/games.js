@@ -48,6 +48,61 @@ module.exports = io => {
         })
         .catch((error) => next(error))
     })
+    .post('/games/:id/players', authenticate, (req, res, next) => {
+      const id = req.params.id
+      const patchForGame = req.body
+
+      Game.findById(id)
+        .then((game) => {
+          if (!game) { return next() }
+
+          if(game.players.length > 1){
+            io.emit('action', {
+              type: 'GAME_ERROR',
+              payload: 'Maximum number of players reached'
+            })
+            return next()
+          }
+          const newSymbol = game.players[0].symbol === 'X' ? 'O' : 'X'
+          console.log(game);
+
+          const players = { players: [game.players[0], {
+            userId: req.account._id,
+            symbol: newSymbol,
+            squares: []
+          }]}
+
+          const updatedGame = { ...game,  ...players }
+          Game.findByIdAndUpdate(id, { $set: updatedGame }, { new: true })
+            .then((game) => {
+              io.emit('action', {
+                type: 'GAME_UPDATED',
+                payload: game
+              })
+              res.json(game)
+            })
+            .catch((error) => next(error))
+        })
+        .catch((error) => next(error))
+
+      Game.findByIdAndUpdate(id, { $set: updatedGame }, { new: true })
+        .then((game) => {
+          if(game.players.length > 1){
+            io.emit('action', {
+              type: 'GAME_ERROR',
+              payload: 'Maximum number of players reached'
+            })
+            return next()
+          }
+
+
+          io.emit('action', {
+            type: 'GAME_UPDATED',
+            payload: game.players
+          })
+          res.json(game)
+        })
+    })
     .put('/games/:id', authenticate, (req, res, next) => {
       const id = req.params.id
       const updatedGame = req.body
