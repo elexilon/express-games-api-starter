@@ -32,10 +32,10 @@ module.exports = io => {
         userId: req.account._id,
         players: [{
           userId: req.account._id,
-          pairs: []
+          symbol: Math.random() === 0 ? 'X' : 'O',
+          squares: []
         }],
-        cards: utils.shuffle('✿✪♦✵♣♠♥✖'.repeat(2).split(''))
-          .map((symbol) => ({ visible: false, symbol }))
+        squares: []
       }
 
       Game.create(newGame)

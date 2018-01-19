@@ -2,19 +2,19 @@
 const mongoose = require('../config/database')
 const { Schema } = mongoose
 
-const cardSchema = new Schema({
-  symbol: { type: String, required: true },
-  visible: { type: Boolean, default: false },
+const squaresSchema = new Schema({
+  position: { type: Number, required: true },
   won: { type: Boolean, default: false },
 });
 
 const playerSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'users' },
-  pairs: [String],
+  symbol: { type: String, required: true },
+  squares: [squaresSchema]
 });
 
 const gameSchema = new Schema({
-  cards: [cardSchema],
+  squares: [squaresSchema],
   players: [playerSchema],
   turn: { type: Number, default: 0 }, // player index
   started: { type: Boolean, default: false },
@@ -22,7 +22,6 @@ const gameSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'users' },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  lastCard: { type: Number },
   draw: { type: Boolean, default: false },
 });
 
